@@ -390,7 +390,7 @@ function BestPractices() {
 
 function App() {
   const [tab, setTab] = useState("overview");
-  const tabs = ["overview", "regions", "industries", "best practices"];
+  const tabs = ["overview", "regions", "industries", "playbook"];
   return h("div", { className: "app" },
     h("div", { className: "header" },
       h("div", null,
@@ -412,7 +412,7 @@ function App() {
     tab === "overview"        ? h(Overview, null)       : null,
     tab === "regions"         ? h(Regions, null)        : null,
     tab === "industries"      ? h(Industries, null)     : null,
-    tab === "best practices"  ? h(BestPractices, null)  : null,
+    tab === "playbook"        ? h(BestPractices, null)  : null,
     h("div", { className: "footer" }, "Source: Agentic World Prospects · 10,520 accounts · Last updated Jun 2026")
   );
 }
