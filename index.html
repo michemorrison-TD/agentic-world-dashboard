@@ -89,6 +89,15 @@
     /* Space */
     .space { display: flex; flex-direction: column; gap: 24px; }
 
+    /* Best Practices */
+    .bp-intro { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+    .bp-card { background: #fff; border-left: 4px solid #e5e7eb; border-radius: 0 12px 12px 0; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .bp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .bp-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .bp-title { font-size: 14px; font-weight: 600; color: #1f2937; }
+    .bp-list { padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+    .bp-list li { font-size: 13px; color: #4b5563; line-height: 1.5; }
+
     /* Footer */
     .footer { text-align: center; font-size: 11px; color: #9ca3af; padding-top: 16px; border-top: 1px solid #f3f4f6; margin-top: 8px; }
   </style>
@@ -294,8 +303,94 @@ function Industries() {
   );
 }
 
+const BP = [
+  {
+    num: "1",
+    title: "Send in tiers, not one blast",
+    color: "#10b981",
+    items: [
+      "Tier 1 (235 accounts) — Customers + active funnel. AE sends a personalized, plain-text email. This audience should feel personally invited, not mass-marketed.",
+      "Tier 2 (~4,500 accounts) — AE-owned but cold. Light 3-touch sequence: Save the Date → event context → registration nudge.",
+      "Tier 3 (~5,900 accounts) — No owner, no engagement. Do NOT cold email. Use LinkedIn Matched Audiences or programmatic display instead — cold email at this volume damages your domain reputation."
+    ]
+  },
+  {
+    num: "2",
+    title: "Send timing matters more than most teams realize",
+    color: "#3b82f6",
+    items: [
+      "6–8 weeks out is the sweet spot for Save the Dates for business conferences.",
+      "Send Tuesday–Thursday, 9–11am in the recipient's local timezone — not a single US-time blast that arrives at midnight in Japan.",
+      "For Japan and Korea, coordinate separate sends with in-region AEs."
+    ]
+  },
+  {
+    num: "3",
+    title: "Localize for Asia — don't just translate",
+    color: "#f59e0b",
+    items: [
+      "Japan (1,383) and Korea (268) need more than translated subject lines.",
+      "The sender should be a recognized in-region name, not a US marketing alias.",
+      "Japanese business emails are more formal — lead with company credibility before event details."
+    ]
+  },
+  {
+    num: "4",
+    title: "Your customers (112) deserve VIP treatment",
+    color: "#6366f1",
+    items: [
+      "Send to customers first — before any other tier.",
+      "Change the CTA: not just 'register' but 'join us as a featured guest' or 'reserve a private session.'",
+      "If you have executive sponsors at any of these accounts, loop in their AE before any email goes out."
+    ]
+  },
+  {
+    num: "5",
+    title: "Contact enrichment is the critical gap",
+    color: "#ef4444",
+    items: [
+      "This list is company-level only — no names, titles, or emails.",
+      "Pull contacts from Salesforce/HubSpot matched to these accounts before any send.",
+      "Target VP/Director of Marketing, Digital, Data, or IT — those are the Treasure AI buyer personas.",
+      "Aim for 1–2 contacts per Tier 1 account at minimum."
+    ]
+  },
+  {
+    num: "6",
+    title: "Track opens by tier, not overall",
+    color: "#8b5cf6",
+    items: [
+      "A single open rate stat will mislead you — Tier 1 should hit 40–60%, Tier 2 more like 20–30%.",
+      "If Tier 1 open rates are low, that's an AE problem (wrong contact, wrong sender), not a copy problem.",
+      "Build a tracker: account → tier → sent date → opened → registered."
+    ]
+  }
+];
+
+function BestPractices() {
+  return h("div", { className: "space" },
+    h("div", { className: "bp-intro" },
+      h("p", null, "Six best practices for Save the Date outreach at this scale, based on the prospect list composition.")
+    ),
+    BP.map((rec, i) =>
+      h("div", { key: i, className: "bp-card", style: { borderLeftColor: rec.color } },
+        h("div", { className: "bp-header" },
+          h("span", { className: "bp-num", style: { backgroundColor: rec.color } }, rec.num),
+          h("span", { className: "bp-title" }, rec.title)
+        ),
+        h("ul", { className: "bp-list" },
+          rec.items.map((item, j) =>
+            h("li", { key: j }, item)
+          )
+        )
+      )
+    )
+  );
+}
+
 function App() {
   const [tab, setTab] = useState("overview");
+  const tabs = ["overview", "regions", "industries", "best practices"];
   return h("div", { className: "app" },
     h("div", { className: "header" },
       h("div", null,
@@ -308,15 +403,16 @@ function App() {
       )
     ),
     h("div", { className: "tabs" },
-      ["overview", "regions", "industries"].map(t =>
+      tabs.map(t =>
         h("button", { key: t, className: "tab" + (tab === t ? " active" : ""), onClick: () => setTab(t) },
           t.charAt(0).toUpperCase() + t.slice(1)
         )
       )
     ),
-    tab === "overview"    ? h(Overview, null)   : null,
-    tab === "regions"     ? h(Regions, null)    : null,
-    tab === "industries"  ? h(Industries, null) : null,
+    tab === "overview"        ? h(Overview, null)       : null,
+    tab === "regions"         ? h(Regions, null)        : null,
+    tab === "industries"      ? h(Industries, null)     : null,
+    tab === "best practices"  ? h(BestPractices, null)  : null,
     h("div", { className: "footer" }, "Source: Agentic World Prospects · 10,520 accounts · Last updated Jun 2026")
   );
 }
