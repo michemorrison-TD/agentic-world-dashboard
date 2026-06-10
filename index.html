@@ -4,36 +4,107 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agentic World Conference — Prospect Outreach Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
   <style>
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f9fafb; color: #111827; min-height: 100vh; }
+    .app { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+
+    /* Header */
+    .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+    .header h1 { font-size: 24px; font-weight: 700; color: #111827; }
+    .header p { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .header-total { text-align: right; }
+    .header-total .big { font-size: 32px; font-weight: 700; color: #111827; }
+    .header-total .label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; background: #f3f4f6; padding: 4px; border-radius: 10px; width: fit-content; margin-bottom: 24px; }
+    .tab { padding: 8px 16px; font-size: 13px; font-weight: 500; border-radius: 7px; border: none; cursor: pointer; transition: all 0.15s; background: transparent; color: #6b7280; }
+    .tab.active { background: #fff; color: #111827; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .tab:hover:not(.active) { color: #374151; }
+
+    /* KPI grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 600px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card { background: #fff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .kpi-label { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .kpi-value { font-size: 26px; font-weight: 700; }
+    .kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+    /* Cards */
+    .card { background: #fff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .card-title { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+
+    /* Two-col layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Tier cards */
+    .tier-stack { display: flex; flex-direction: column; gap: 12px; }
+    .tier-card { border-radius: 12px; padding: 16px; border: 1px solid; }
+    .tier-card.t1 { background: #ecfdf5; border-color: #a7f3d0; }
+    .tier-card.t2 { background: #fffbeb; border-color: #fde68a; }
+    .tier-card.t3 { background: #f9fafb; border-color: #e5e7eb; }
+    .tier-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .tier-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 4px; }
+    .tier-badge.t1 { background: #d1fae5; color: #065f46; }
+    .tier-badge.t2 { background: #fef3c7; color: #92400e; }
+    .tier-badge.t3 { background: #f3f4f6; color: #374151; }
+    .tier-count { font-size: 14px; font-weight: 600; color: #1f2937; }
+    .tier-desc { font-size: 12px; color: #6b7280; margin-top: 2px; }
+    .tier-action { font-size: 11px; font-weight: 500; padding: 4px 8px; background: rgba(255,255,255,0.7); border-radius: 6px; color: #374151; white-space: nowrap; flex-shrink: 0; }
+
+    /* Donut legend */
+    .donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4b5563; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Region bar */
+    .region-bar { display: flex; border-radius: 9999px; overflow: hidden; height: 24px; width: 100%; margin-bottom: 12px; }
+    .region-segment { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #fff; }
+    .region-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .region-cell { text-align: center; }
+    .region-name { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; color: #6b7280; }
+    .region-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .region-num { font-size: 14px; font-weight: 700; color: #1f2937; }
+
+    /* Alert */
+    .alert { border-radius: 12px; padding: 16px; font-size: 13px; margin-top: 0; }
+    .alert.amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert.indigo { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
+
+    /* Region cards */
+    .region-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 640px) { .region-cards { grid-template-columns: 1fr; } }
+    .region-card { background: #fff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .region-flag { font-size: 24px; margin-bottom: 8px; }
+    .region-card-name { font-weight: 600; color: #1f2937; }
+    .region-card-count { font-size: 26px; font-weight: 700; margin-top: 4px; }
+    .region-card-note { font-size: 12px; color: #6b7280; margin-top: 8px; }
+
+    /* Space */
+    .space { display: flex; flex-direction: column; gap: 24px; }
+
+    /* Footer */
+    .footer { text-align: center; font-size: 11px; color: #9ca3af; padding-top: 16px; border-top: 1px solid #f3f4f6; margin-top: 8px; }
   </style>
 </head>
-<body class="bg-gray-50">
-
+<body>
 <div id="root"></div>
-
-<script type="text/babel">
-const { useState } = React;
-const {
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer
-} = Recharts;
+<script>
+const { createElement: h, useState } = React;
+const { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } = Recharts;
 
 const DATA = {
   funnelStages: [
-    { stage: "Customer",    count: 112,  color: "#10b981", tier: 1 },
-    { stage: "Bottom",      count: 92,   color: "#3b82f6", tier: 1 },
-    { stage: "Middle",      count: 31,   color: "#6366f1", tier: 1 },
-    { stage: "Top",         count: 1237, color: "#f59e0b", tier: 2 },
-    { stage: "No Activity", count: 9048, color: "#d1d5db", tier: 3 }
+    { stage: "Customer",    count: 112,  color: "#10b981" },
+    { stage: "Bottom",      count: 92,   color: "#3b82f6" },
+    { stage: "Middle",      count: 31,   color: "#6366f1" },
+    { stage: "Top",         count: 1237, color: "#f59e0b" },
+    { stage: "No Activity", count: 9048, color: "#d1d5db" }
   ],
   regions: [
     { name: "Americas", owned: 2805, color: "#3b82f6" },
@@ -42,16 +113,16 @@ const DATA = {
     { name: "Unowned",  owned: 5947, color: "#e5e7eb" }
   ],
   countries: [
-    { country: "United States", count: 5575 },
-    { country: "Japan",         count: 1383 },
-    { country: "United Kingdom",count: 840  },
-    { country: "France",        count: 478  },
-    { country: "Canada",        count: 425  },
-    { country: "Germany",       count: 394  },
-    { country: "South Korea",   count: 268  },
-    { country: "Switzerland",   count: 145  },
-    { country: "Spain",         count: 101  },
-    { country: "Netherlands",   count: 87   }
+    { country: "United States",  count: 5575 },
+    { country: "Japan",          count: 1383 },
+    { country: "United Kingdom", count: 840  },
+    { country: "France",         count: 478  },
+    { country: "Canada",         count: 425  },
+    { country: "Germany",        count: 394  },
+    { country: "South Korea",    count: 268  },
+    { country: "Switzerland",    count: 145  },
+    { country: "Spain",          count: 101  },
+    { country: "Netherlands",    count: 87   }
   ],
   industries: [
     { name: "Retail",        count: 980 },
@@ -68,252 +139,188 @@ const DATA = {
 };
 
 const TOTAL = 10520;
+const INDUSTRY_COLORS = ["#3b82f6","#6366f1","#8b5cf6","#a78bfa","#10b981","#34d399","#f59e0b","#fbbf24","#ef4444","#f87171"];
 
-const TIER_CONFIG = [
-  {
-    tier: 1,
-    label: "Tier 1 — Warm & Active",
-    count: 235,
-    description: "Customers + Bottom/Middle funnel. Personalized, AE-signed Save the Date.",
-    action: "Personalized AE outreach",
-    bg: "bg-emerald-50", border: "border-emerald-200",
-    badge: "bg-emerald-100 text-emerald-800"
-  },
-  {
-    tier: 2,
-    label: "Tier 2 — Owned but Cold",
-    count: 4573,
-    description: "Top funnel + accounts with an assigned TD Owner Region.",
-    action: "AE-led 1:1 sequence",
-    bg: "bg-amber-50", border: "border-amber-200",
-    badge: "bg-amber-100 text-amber-800"
-  },
-  {
-    tier: 3,
-    label: "Tier 3 — Unowned & Cold",
-    count: 5947,
-    description: "No owner, no funnel activity. Use ABM/LinkedIn matched audiences — do not cold blast.",
-    action: "Paid / ABM targeting",
-    bg: "bg-gray-50", border: "border-gray-200",
-    badge: "bg-gray-100 text-gray-700"
-  }
+const TIERS = [
+  { tier: 1, cls: "t1", count: 235,  action: "Personalized AE outreach", desc: "Customers + Bottom/Middle funnel. Personalized, AE-signed Save the Date." },
+  { tier: 2, cls: "t2", count: 4573, action: "AE-led 1:1 sequence",       desc: "Top funnel + accounts with an assigned TD Owner Region." },
+  { tier: 3, cls: "t3", count: 5947, action: "Paid / ABM targeting",      desc: "No owner, no funnel activity. Use ABM/LinkedIn matched audiences — do not cold blast." }
 ];
 
-function Dashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
+function tooltipStyle() {
+  return { backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "12px" };
+}
 
-  const tabClass = (tab) =>
-    `px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer border-none outline-none ${
-      activeTab === tab
-        ? "bg-white text-gray-900 shadow-sm"
-        : "text-gray-500 hover:text-gray-700 bg-transparent"
-    }`;
+function Overview() {
+  return h("div", { className: "space" },
+    // KPIs
+    h("div", { className: "kpi-grid" },
+      [
+        { label: "Tier 1 (Warm)",  value: "235",   sub: "Personalized AE send", color: "#10b981" },
+        { label: "Tier 2 (Owned)", value: "4,573", sub: "AE-led sequence",       color: "#f59e0b" },
+        { label: "Tier 3 (Cold)",  value: "5,947", sub: "ABM / paid only",       color: "#6b7280" },
+        { label: "Customers",      value: "112",   sub: "VIP treatment",         color: "#3b82f6" }
+      ].map((k, i) =>
+        h("div", { key: i, className: "kpi-card" },
+          h("div", { className: "kpi-label" }, k.label),
+          h("div", { className: "kpi-value", style: { color: k.color } }, k.value),
+          h("div", { className: "kpi-sub" }, k.sub)
+        )
+      )
+    ),
 
-  const INDUSTRY_COLORS = ["#3b82f6","#6366f1","#8b5cf6","#a78bfa","#10b981","#34d399","#f59e0b","#fbbf24","#ef4444","#f87171"];
+    // Donut + Tier cards
+    h("div", { className: "two-col" },
+      h("div", { className: "card" },
+        h("div", { className: "card-title" }, "Funnel Stage Breakdown"),
+        h(ResponsiveContainer, { width: "100%", height: 200 },
+          h(PieChart, null,
+            h(Pie, { data: DATA.funnelStages, dataKey: "count", nameKey: "stage", cx: "50%", cy: "50%", innerRadius: 50, outerRadius: 80, paddingAngle: 2 },
+              DATA.funnelStages.map((s, i) => h(Cell, { key: i, fill: s.color }))
+            ),
+            h(Tooltip, { contentStyle: tooltipStyle(), formatter: (v) => [v.toLocaleString(), "Accounts"] })
+          )
+        ),
+        h("div", { className: "donut-legend" },
+          DATA.funnelStages.map((s, i) =>
+            h("div", { key: i, className: "legend-item" },
+              h("span", { className: "legend-dot", style: { backgroundColor: s.color } }),
+              h("span", null, s.stage + ": ", h("strong", null, s.count.toLocaleString()))
+            )
+          )
+        )
+      ),
+      h("div", { className: "tier-stack" },
+        TIERS.map(t =>
+          h("div", { key: t.tier, className: "tier-card " + t.cls },
+            h("div", { className: "tier-inner" },
+              h("div", null,
+                h("span", { className: "tier-badge " + t.cls }, "Tier " + t.tier),
+                h("div", { className: "tier-count" }, t.count.toLocaleString() + " accounts"),
+                h("div", { className: "tier-desc" }, t.desc)
+              ),
+              h("div", { className: "tier-action" }, t.action)
+            )
+          )
+        )
+      )
+    ),
 
-  return (
-    <div className="p-6 space-y-6 bg-gray-50 text-gray-900 min-h-screen">
+    // Region coverage bar
+    h("div", { className: "card" },
+      h("div", { className: "card-title" }, "TD Owner Region Coverage"),
+      h("div", { className: "region-bar" },
+        DATA.regions.map((r, i) => {
+          const pct = ((r.owned / TOTAL) * 100).toFixed(1);
+          return h("div", { key: i, className: "region-segment", style: { width: pct + "%", backgroundColor: r.color }, title: r.name + ": " + r.owned.toLocaleString() },
+            pct > 5 ? pct + "%" : ""
+          );
+        })
+      ),
+      h("div", { className: "region-grid" },
+        DATA.regions.map((r, i) =>
+          h("div", { key: i, className: "region-cell" },
+            h("div", { className: "region-name" },
+              h("span", { className: "region-dot", style: { backgroundColor: r.color } }),
+              r.name
+            ),
+            h("div", { className: "region-num" }, r.owned.toLocaleString())
+          )
+        )
+      )
+    ),
 
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Agentic World Conference</h1>
-          <p className="text-sm text-gray-500 mt-1">Save the Date — Prospect Outreach Strategy</p>
-        </div>
-        <div className="text-right">
-          <div className="text-3xl font-bold text-gray-900">10,520</div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide">Total Accounts</div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-        {["overview", "regions", "industries"].map(tab => (
-          <button key={tab} className={tabClass(tab)} onClick={() => setActiveTab(tab)}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* OVERVIEW */}
-      {activeTab === "overview" && (
-        <div className="space-y-6">
-
-          {/* KPIs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: "Tier 1 (Warm)",  value: "235",   sub: "Personalized AE send", color: "#10b981" },
-              { label: "Tier 2 (Owned)", value: "4,573", sub: "AE-led sequence",       color: "#f59e0b" },
-              { label: "Tier 3 (Cold)",  value: "5,947", sub: "ABM / paid only",       color: "#6b7280" },
-              { label: "Customers",      value: "112",   sub: "VIP treatment",         color: "#3b82f6" }
-            ].map((kpi, i) => (
-              <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{kpi.label}</div>
-                <div className="text-2xl font-bold" style={{ color: kpi.color }}>{kpi.value}</div>
-                <div className="text-xs text-gray-400 mt-1">{kpi.sub}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Donut + Tier Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-              <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Funnel Stage Breakdown</h2>
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie data={DATA.funnelStages} dataKey="count" nameKey="stage"
-                    cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                    {DATA.funnelStages.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "12px" }}
-                    formatter={(v) => [v.toLocaleString(), "Accounts"]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {DATA.funnelStages.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-gray-600">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
-                    <span>{s.stage}: <strong>{s.count.toLocaleString()}</strong></span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {TIER_CONFIG.map((t) => (
-                <div key={t.tier} className={`rounded-xl p-4 border ${t.bg} ${t.border}`}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.badge}`}>Tier {t.tier}</span>
-                        <span className="text-sm font-semibold text-gray-800">{t.count.toLocaleString()} accounts</span>
-                      </div>
-                      <p className="text-xs text-gray-600">{t.description}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-xs font-medium px-2 py-1 rounded-md bg-white/60 text-gray-700 whitespace-nowrap">
-                        {t.action}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Region coverage bar */}
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">TD Owner Region Coverage</h2>
-            <div className="flex rounded-full overflow-hidden h-6 w-full">
-              {DATA.regions.map((r, i) => {
-                const pct = ((r.owned / TOTAL) * 100).toFixed(1);
-                return (
-                  <div key={i}
-                    style={{ width: `${pct}%`, backgroundColor: r.color }}
-                    className="flex items-center justify-center text-xs font-medium text-white"
-                    title={`${r.name}: ${r.owned.toLocaleString()}`}>
-                    {pct > 5 ? `${pct}%` : ""}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="grid grid-cols-4 gap-2 mt-3">
-              {DATA.regions.map((r, i) => (
-                <div key={i} className="text-center">
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: r.color }} />
-                    {r.name}
-                  </div>
-                  <div className="text-sm font-bold text-gray-800">{r.owned.toLocaleString()}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-            <strong>Regional localization required:</strong> Japan (1,383 accounts) and South Korea (268 accounts) require localized subject lines and in-region sender context for Save the Date emails to land effectively.
-          </div>
-        </div>
-      )}
-
-      {/* REGIONS */}
-      {activeTab === "regions" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Top 10 Countries</h2>
-            <ResponsiveContainer width="100%" height={340}>
-              <BarChart data={DATA.countries} layout="vertical" margin={{ left: 20, right: 30 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />
-                <XAxis type="number" stroke="#9ca3af" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="country" type="category" width={110} stroke="#9ca3af" tick={{ fontSize: 11 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "12px" }}
-                  formatter={(v) => [v.toLocaleString(), "Accounts"]}
-                />
-                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                  {DATA.countries.map((_, i) => (
-                    <Cell key={i} fill={i < 3 ? "#3b82f6" : i < 6 ? "#6366f1" : "#a5b4fc"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { region: "Americas", count: 2805, note: "English. US timezone. Business ROI messaging.", color: "#3b82f6", flag: "🌎" },
-              { region: "EMEA",     count: 1126, note: "English. Note event logistics & time zones early.", color: "#10b981", flag: "🌍" },
-              { region: "Asia",     count: 642,  note: "Japanese/Korean versions needed. AEs must co-sign.", color: "#f59e0b", flag: "🌏" }
-            ].map((r, i) => (
-              <div key={i} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                <div className="text-2xl mb-2">{r.flag}</div>
-                <div className="font-semibold text-gray-800">{r.region}</div>
-                <div className="text-2xl font-bold mt-1" style={{ color: r.color }}>{r.count.toLocaleString()}</div>
-                <div className="text-xs text-gray-500 mt-2">{r.note}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* INDUSTRIES */}
-      {activeTab === "industries" && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Top 10 Industries</h2>
-            <ResponsiveContainer width="100%" height={340}>
-              <BarChart data={DATA.industries} margin={{ left: 10, right: 20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="name" stroke="#9ca3af" tick={{ fontSize: 10 }} angle={-25} textAnchor="end" interval={0} />
-                <YAxis stroke="#9ca3af" tick={{ fontSize: 11 }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "8px", fontSize: "12px" }}
-                  formatter={(v) => [v.toLocaleString(), "Accounts"]}
-                />
-                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                  {DATA.industries.map((_, i) => <Cell key={i} fill={INDUSTRY_COLORS[i]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-800">
-            <strong>Messaging tip:</strong> Retail (980), IT & Services (702), Banking (505), and Automotive (500) are the densest verticals — consider industry-specific Save the Date copy variants that speak to agentic AI use cases relevant to each sector.
-          </div>
-        </div>
-      )}
-
-      <div className="text-xs text-gray-400 text-center pt-2 border-t border-gray-100">
-        Source: Agentic World Prospects · 10,520 accounts · Last updated Jun 2026
-      </div>
-    </div>
+    h("div", { className: "alert amber" },
+      h("strong", null, "Regional localization required: "),
+      "Japan (1,383 accounts) and South Korea (268 accounts) require localized subject lines and in-region sender context for Save the Date emails to land effectively."
+    )
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<Dashboard />);
+function Regions() {
+  return h("div", { className: "space" },
+    h("div", { className: "card" },
+      h("div", { className: "card-title" }, "Top 10 Countries"),
+      h(ResponsiveContainer, { width: "100%", height: 340 },
+        h(BarChart, { data: DATA.countries, layout: "vertical", margin: { left: 20, right: 30 } },
+          h(CartesianGrid, { strokeDasharray: "3 3", horizontal: false, stroke: "#f3f4f6" }),
+          h(XAxis, { type: "number", stroke: "#9ca3af", tick: { fontSize: 11 } }),
+          h(YAxis, { dataKey: "country", type: "category", width: 120, stroke: "#9ca3af", tick: { fontSize: 11 } }),
+          h(Tooltip, { contentStyle: tooltipStyle(), formatter: (v) => [v.toLocaleString(), "Accounts"] }),
+          h(Bar, { dataKey: "count", radius: [0, 4, 4, 0] },
+            DATA.countries.map((_, i) => h(Cell, { key: i, fill: i < 3 ? "#3b82f6" : i < 6 ? "#6366f1" : "#a5b4fc" }))
+          )
+        )
+      )
+    ),
+    h("div", { className: "region-cards" },
+      [
+        { region: "Americas", count: 2805, note: "English. US timezone. Business ROI messaging.", color: "#3b82f6", flag: "🌎" },
+        { region: "EMEA",     count: 1126, note: "English. Note event logistics & time zones early.", color: "#10b981", flag: "🌍" },
+        { region: "Asia",     count: 642,  note: "Japanese/Korean versions needed. AEs must co-sign.", color: "#f59e0b", flag: "🌏" }
+      ].map((r, i) =>
+        h("div", { key: i, className: "region-card" },
+          h("div", { className: "region-flag" }, r.flag),
+          h("div", { className: "region-card-name" }, r.region),
+          h("div", { className: "region-card-count", style: { color: r.color } }, r.count.toLocaleString()),
+          h("div", { className: "region-card-note" }, r.note)
+        )
+      )
+    )
+  );
+}
+
+function Industries() {
+  return h("div", { className: "space" },
+    h("div", { className: "card" },
+      h("div", { className: "card-title" }, "Top 10 Industries"),
+      h(ResponsiveContainer, { width: "100%", height: 340 },
+        h(BarChart, { data: DATA.industries, margin: { left: 10, right: 20, bottom: 50 } },
+          h(CartesianGrid, { strokeDasharray: "3 3", vertical: false, stroke: "#f3f4f6" }),
+          h(XAxis, { dataKey: "name", stroke: "#9ca3af", tick: { fontSize: 10 }, angle: -25, textAnchor: "end", interval: 0 }),
+          h(YAxis, { stroke: "#9ca3af", tick: { fontSize: 11 } }),
+          h(Tooltip, { contentStyle: tooltipStyle(), formatter: (v) => [v.toLocaleString(), "Accounts"] }),
+          h(Bar, { dataKey: "count", radius: [4, 4, 0, 0] },
+            DATA.industries.map((_, i) => h(Cell, { key: i, fill: INDUSTRY_COLORS[i] }))
+          )
+        )
+      )
+    ),
+    h("div", { className: "alert indigo" },
+      h("strong", null, "Messaging tip: "),
+      "Retail (980), IT & Services (702), Banking (505), and Automotive (500) are the densest verticals — consider industry-specific Save the Date copy variants that speak to agentic AI use cases relevant to each sector."
+    )
+  );
+}
+
+function App() {
+  const [tab, setTab] = useState("overview");
+  return h("div", { className: "app" },
+    h("div", { className: "header" },
+      h("div", null,
+        h("h1", null, "Agentic World Conference"),
+        h("p", null, "Save the Date — Prospect Outreach Strategy")
+      ),
+      h("div", { className: "header-total" },
+        h("div", { className: "big" }, "10,520"),
+        h("div", { className: "label" }, "Total Accounts")
+      )
+    ),
+    h("div", { className: "tabs" },
+      ["overview", "regions", "industries"].map(t =>
+        h("button", { key: t, className: "tab" + (tab === t ? " active" : ""), onClick: () => setTab(t) },
+          t.charAt(0).toUpperCase() + t.slice(1)
+        )
+      )
+    ),
+    tab === "overview"    ? h(Overview, null)   : null,
+    tab === "regions"     ? h(Regions, null)    : null,
+    tab === "industries"  ? h(Industries, null) : null,
+    h("div", { className: "footer" }, "Source: Agentic World Prospects · 10,520 accounts · Last updated Jun 2026")
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(App, null));
 </script>
 </body>
 </html>
